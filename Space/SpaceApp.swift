@@ -19,6 +19,9 @@ struct SpaceApp: App {
 
                     ISSMapView()
                         .tabItem { Label("ISS", systemImage: "sparkles") }
+                    
+                    PlanetsView()
+                        .tabItem { Label("Sky", systemImage: "moon.stars") }
                 }
             }
         }

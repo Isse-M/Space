@@ -14,14 +14,13 @@ final class DailyViewModel {
     private let apodService: APODServicing
     private let marsService: MarsWeatherServicing
     private let rocketLaunchService: RocketLaunchServicing
-    
 
     var apod: APODState?
     var mars: MarsWeatherState?
     
     var marsLatest: MarsWeatherState?
     var marsDays: [MarsWeatherState] = []
-    
+
     var rocketLaunches: [RocketLaunchState] = []
 
     var isLoading = false
@@ -37,41 +36,54 @@ final class DailyViewModel {
         self.rocketLaunchService = rocketLaunchService
     }
 
-
     func load() async {
         guard !isLoading else { return }
         isLoading = true
-        defer { isLoading = false }
+        errorMessage = nil
+
+        var errors: [String] = []
+
+        let apodTask = Task { () -> APODState in
+            try await apodService.fetchAPOD()
+        }
+
+        let marsTask = Task { () -> MarsWeatherResponse in
+            try await marsService.fetchMarsWeather()
+        }
+
+        let launchesTask = Task { () -> [RocketLaunchState] in
+            try await rocketLaunchService.fetchNextLaunches(limit: 5)
+        }
 
         do {
-            apod = try await apodService.fetchAPOD()
+            let marsRes = try await marsTask.value
+            marsLatest = marsRes.latest
+            marsDays = marsRes.days
+            mars = marsRes.latest
         } catch {
-            errorMessage = "APOD: \(error.localizedDescription)"
+            marsLatest = nil
+            marsDays = []
+            mars = nil
+            errors.append("Mars: \(error.localizedDescription)")
         }
-        
+
         do {
-            let marsResult = try await marsService.fetchMarsWeather()
-            marsLatest = marsResult.latest
-            marsDays = marsResult.days
-            mars = marsResult.latest
+            let launchesRes = try await launchesTask.value
+            rocketLaunches = Array(launchesRes.prefix(3))
         } catch {
-            let marsErr = "Mars: \(error.localizedDescription)"
-            if let existing = errorMessage, !existing.isEmpty {
-                errorMessage = existing + " • " + marsErr
-            } else {
-                errorMessage = marsErr
-            }
+            rocketLaunches = []
+            errors.append("Launches: \(error.localizedDescription)")
         }
+
         do {
-            let launches = try await rocketLaunchService.fetchNextLaunches(limit: 5)
-            rocketLaunches = Array(launches.prefix(3))
+            apod = try await apodTask.value
         } catch {
-            let msg = "Launches: \(error.localizedDescription)"
-            errorMessage = errorMessage == nil ? msg : errorMessage! + " • " + msg
+            apod = nil
+            errors.append("APOD: \(error.localizedDescription)")
         }
-        if apod != nil, mars != nil {
-            errorMessage = nil
-        }
+
+        errorMessage = errors.isEmpty ? nil : errors.joined(separator: " • ")
+        isLoading = false
     }
 
     var marsTitle: String {
@@ -93,7 +105,7 @@ final class DailyViewModel {
         guard let m = mars?.data.hws else { return "—" }
         return formatMeasurement(m, suffix: "m/s")
     }
-    
+
     var marsHeroSolText: String {
         "Sol \(marsLatest?.sol ?? "—")"
     }
@@ -115,12 +127,6 @@ final class DailyViewModel {
         if let mx = m.mx { return String(format: "%.1f %@ (max)", mx, suffix) }
         return "—"
     }
-    
-    private let isoFormatter: ISO8601DateFormatter = {
-        let f = ISO8601DateFormatter()
-        f.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-        return f
-    }()
 
     func earthDateText(from firstUTC: String?) -> String {
         guard let firstUTC else { return "—" }
@@ -136,7 +142,7 @@ final class DailyViewModel {
 
         return date.formatted(.dateTime.month(.abbreviated).day())
     }
-    
+
     func launchDateText(_ launch: RocketLaunchState) -> String {
         if let iso = launch.winOpen ?? launch.t0,
            let date = parseISO(iso) {
@@ -154,8 +160,4 @@ final class DailyViewModel {
 
         return f1.date(from: s) ?? f2.date(from: s)
     }
-    
 }
-
-
-

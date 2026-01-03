@@ -29,9 +29,22 @@
 		00C437222F044C2400FEB72D /* SpaceUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SpaceUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		003DE6E72F099C0400671384 /* Exceptions for "Space" folder in "Space" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 00C437082F044C1E00FEB72D /* Space */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		00C4370B2F044C1E00FEB72D /* Space */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				003DE6E72F099C0400671384 /* Exceptions for "Space" folder in "Space" target */,
+			);
 			path = Space;
 			sourceTree = "<group>";
 		};
@@ -400,7 +413,9 @@
 				DEVELOPMENT_TEAM = AY7T5AF395;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Space/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Astro Daily";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = Test;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -433,7 +448,9 @@
 				DEVELOPMENT_TEAM = AY7T5AF395;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Space/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Astro Daily";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = Test;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

@@ -5,54 +5,60 @@
 //  Created by Ismail Mohammed on 2026-01-03.
 //
 
-
 import Foundation
 
 struct VisiblePlanetsResponse: Decodable {
+    let meta: Meta
     let data: [VisibleBody]
-}
+    let links: Links?
 
-struct VisibleBody: Decodable, Identifiable {
-    // API:t följer JSON:API och har ett id per body enligt README. [page:0]
-    let id: String
-    let type: String?
-    let attributes: Attributes
+    struct Meta: Decodable {
+        let time: String
+        let engineVersion: String
+        let latitude: Double
+        let longitude: Double
+        let elevation: Double
+        let aboveHorizon: Bool
+    }
 
-    var name: String { attributes.name }
-    var altitude: Double { attributes.altitude }
-    var azimuth: Double { attributes.azimuth }
-    var magnitude: Double? { attributes.magnitude }
-    var constellation: String? { attributes.constellation }
-
-    struct Attributes: Decodable {
-        let name: String
-        let altitude: Double
-        let azimuth: Double
-        let magnitude: Double?
-        let constellation: String?
+    struct Links: Decodable {
+        let `self`: String?
+        let engine: String?
     }
 }
 
-protocol VisiblePlanetsServicing {
-    func fetchVisibleBodies(latitude: Double, longitude: Double) async throws -> [VisibleBody]
-}
+struct VisibleBody: Decodable, Identifiable {
+    // API:t skickar inget "id" i datan du fick, så vi använder name som id.
+    // (Det är unikt i listan: Moon, Jupiter, Saturn, osv.) [page:0]
+    var id: String { name }
 
-final class VisiblePlanetsService: VisiblePlanetsServicing {
-    func fetchVisibleBodies(latitude: Double, longitude: Double) async throws -> [VisibleBody] {
-        var components = URLComponents(string: "https://api.visibleplanets.dev/v3")!
-        components.queryItems = [
-            URLQueryItem(name: "latitude", value: String(latitude)),
-            URLQueryItem(name: "longitude", value: String(longitude))
-            // aboveHorizon default true enligt README, så vi behöver inte skicka den. [page:0]
-        ]
+    let name: String
+    let constellation: String?
 
-        let url = components.url!
-        let (data, response) = try await URLSession.shared.data(from: url)
-        guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else {
-            throw URLError(.badServerResponse)
-        }
+    let rightAscension: RightAscension?
+    let declination: Declination?
 
-        let decoded = try JSONDecoder().decode(VisiblePlanetsResponse.self, from: data)
-        return decoded.data
+    let altitude: Double
+    let azimuth: Double
+    let aboveHorizon: Bool
+
+    let phase: Double?          // Moon har phase i din respons
+    let magnitude: Double?
+    let nakedEyeObject: Bool?
+
+    struct RightAscension: Decodable {
+        let negative: Bool
+        let hours: Int
+        let minutes: Int
+        let seconds: Double
+        let raw: Double
+    }
+
+    struct Declination: Decodable {
+        let negative: Bool
+        let degrees: Int
+        let arcminutes: Int
+        let arcseconds: Double
+        let raw: Double
     }
 }

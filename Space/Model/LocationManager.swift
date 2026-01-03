@@ -33,7 +33,6 @@ final class LocationManager: NSObject, CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         coordinate = locations.last?.coordinate
         errorMessage = nil
-        // Räcker för detta use-case (vi behöver inte tracka konstant).
         manager.stopUpdatingLocation()
     }
 
