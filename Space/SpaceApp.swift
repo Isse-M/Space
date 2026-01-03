@@ -12,7 +12,16 @@ import SwiftData
 struct SpaceApp: App {
     var body: some Scene {
         WindowGroup {
-            ISSMapView()
+            NavigationStack {
+                TabView {
+                    DailyPage()
+                        .tabItem { Label("Daily", systemImage: "calendar") }
+
+                    ISSMapView()
+                        .tabItem { Label("ISS", systemImage: "sparkles") }
+                }
+            }
         }
     }
 }
+
