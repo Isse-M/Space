@@ -7,19 +7,19 @@
 
 import Foundation
 
-protocol SpaceXLaunchServicing {
-    func fetchUpcomingLaunches() async throws -> [SpaceXLaunch]
+protocol RocketLaunchServicing {
+    func fetchNextLaunches(limit: Int) async throws -> [RocketLaunchState]
 }
 
-final class SpaceXLaunchService: SpaceXLaunchServicing {
+final class RocketLaunchService: RocketLaunchServicing {
     private let session: URLSession
 
     init(session: URLSession = .shared) {
         self.session = session
     }
 
-    func fetchUpcomingLaunches() async throws -> [SpaceXLaunch] {
-        let url = URL(string: "https://api.spacexdata.com/v4/launches/upcoming")!
+    func fetchNextLaunches(limit: Int = 5) async throws -> [RocketLaunchState] {
+        let url = URL(string: "https://fdo.rocketlaunch.live/json/launches/next/\(limit)")!
 
         let (data, response) = try await session.data(from: url)
 
@@ -28,9 +28,8 @@ final class SpaceXLaunchService: SpaceXLaunchServicing {
             throw URLError(.badServerResponse)
         }
 
-        let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
-
-        return try decoder.decode([SpaceXLaunch].self, from: data)
+        let decoded = try JSONDecoder().decode(RocketLaunchResponse.self, from: data)
+        return decoded.result
     }
 }
+

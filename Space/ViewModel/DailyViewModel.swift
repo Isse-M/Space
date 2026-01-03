@@ -13,8 +13,8 @@ import Observation
 final class DailyViewModel {
     private let apodService: APODServicing
     private let marsService: MarsWeatherServicing
-    private let spacexService: SpaceXLaunchServicing
-    private var lastLoadedAt: Date?
+    private let rocketLaunchService: RocketLaunchServicing
+    
 
     var apod: APODState?
     var mars: MarsWeatherState?
@@ -22,9 +22,7 @@ final class DailyViewModel {
     var marsLatest: MarsWeatherState?
     var marsDays: [MarsWeatherState] = []
     
-    var spacexLaunches: [SpaceXLaunch] = []
-    private var countdownTask: Task<Void, Never>?
-    var now: Date = .now
+    var rocketLaunches: [RocketLaunchState] = []
 
     var isLoading = false
     var errorMessage: String?
@@ -32,19 +30,15 @@ final class DailyViewModel {
     init(
         apodService: APODServicing = APODService(),
         marsService: MarsWeatherServicing = MarsWeatherService(),
-        spacexService: SpaceXLaunchServicing = SpaceXLaunchService()
+        rocketLaunchService: RocketLaunchServicing = RocketLaunchService()
     ) {
         self.apodService = apodService
         self.marsService = marsService
-        self.spacexService = spacexService
+        self.rocketLaunchService = rocketLaunchService
     }
 
+
     func load() async {
-        if let last = lastLoadedAt,
-           Date().timeIntervalSince(last) < 60 {
-            return
-        }
-        lastLoadedAt = Date()
         guard !isLoading else { return }
         isLoading = true
         defer { isLoading = false }
@@ -69,15 +63,10 @@ final class DailyViewModel {
             }
         }
         do {
-            let launches = try await spacexService.fetchUpcomingLaunches()
-            let now = Date()
-            let futureLaunches = launches
-                .filter { $0.dateUTC > now }
-                .sorted { $0.dateUTC < $1.dateUTC }
-            spacexLaunches = futureLaunches
-            print("Future SpaceX launches:", futureLaunches.count)
+            let launches = try await rocketLaunchService.fetchNextLaunches(limit: 5)
+            rocketLaunches = Array(launches.prefix(3))
         } catch {
-            let msg = "SpaceX: \(error.localizedDescription)"
+            let msg = "Launches: \(error.localizedDescription)"
             errorMessage = errorMessage == nil ? msg : errorMessage! + " • " + msg
         }
         if apod != nil, mars != nil {
@@ -148,36 +137,24 @@ final class DailyViewModel {
         return date.formatted(.dateTime.month(.abbreviated).day())
     }
     
-    var next3Launches: [SpaceXLaunch] {
-        Array(spacexLaunches.prefix(3))
-    }
-
-    func countdownText(to date: Date) -> String {
-        let diff = Int(date.timeIntervalSince(now))
-        if diff <= 0 { return "Liftoff!" }
-
-        let days = diff / 86_400
-        let hours = (diff % 86_400) / 3_600
-        let minutes = (diff % 3_600) / 60
-        let seconds = diff % 60
-
-        if days > 0 {
-            return String(format: "%dd %02dh %02dm %02ds", days, hours, minutes, seconds)
-        } else {
-            return String(format: "%02dh %02dm %02ds", hours, minutes, seconds)
+    func launchDateText(_ launch: RocketLaunchState) -> String {
+        if let iso = launch.winOpen ?? launch.t0,
+           let date = parseISO(iso) {
+            return date.formatted(date: .abbreviated, time: .shortened)
         }
+        return "\(launch.dateStr) (estimated)"
     }
 
-    private func startCountdown() {
-        countdownTask?.cancel()
-        countdownTask = Task { [weak self] in
-            guard let self else { return }
-            while !Task.isCancelled {
-                self.now = .now
-                try? await Task.sleep(nanoseconds: 1_000_000_000)
-            }
-        }
+    private func parseISO(_ s: String) -> Date? {
+        let f1 = ISO8601DateFormatter()
+        f1.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+
+        let f2 = ISO8601DateFormatter()
+        f2.formatOptions = [.withInternetDateTime]
+
+        return f1.date(from: s) ?? f2.date(from: s)
     }
+    
 }
 
 

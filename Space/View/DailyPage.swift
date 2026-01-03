@@ -30,11 +30,11 @@ struct DailyPage: View {
 
                 marsWeatherSection
                 
-                Text("SpaceX Launches")
+                Text("Next Rocket Launches")
                     .font(.title2).bold()
 
-                spacexSection
-
+                rocketLaunchSection
+                
                 if let err = vm.errorMessage {
                     Text(err)
                         .font(.footnote)
@@ -183,38 +183,56 @@ struct DailyPage: View {
         .frame(maxWidth: .infinity, alignment: .leading)
     }
     
-    private var spacexSection: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            if vm.next3Launches.isEmpty {
-                Text("No upcoming launches found.")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-            } else {
-                ForEach(vm.next3Launches) { launch in
-                    spacexLaunchCard(launch)
+    private var rocketLaunchSection: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 12) {
+
+                if vm.rocketLaunches.isEmpty {
+                    Text("No upcoming launches found.")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                } else {
+                    ForEach(vm.rocketLaunches) { launch in
+                        rocketLaunchCard(launch)
+                    }
                 }
             }
+            .padding(.vertical, 4)
         }
     }
 
-    private func spacexLaunchCard(_ launch: SpaceXLaunch) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(launch.name)
-                .font(.headline)
+    private func rocketLaunchCard(_ launch: RocketLaunchState) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
 
-            Text(launch.dateUTC.formatted(date: .abbreviated, time: .standard))
-                .font(.caption)
+            HStack(spacing: 8) {
+                Image(systemName: "sparkles")
+                    .foregroundStyle(.orange)
+                    .font(.title3)
+
+                Text(launch.name)
+                    .font(.headline)
+                    .lineLimit(2)
+            }
+
+            Text("\(launch.provider.name)")
+                .font(.subheadline)
                 .foregroundStyle(.secondary)
 
-            HStack {
-                Text("T- \(vm.countdownText(to: launch.dateUTC))")
-                    .font(.title3).bold()
-                Spacer()
-            }
+            Text(launch.vehicle.name)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+
+            Divider().opacity(0.4)
+
+            Text(vm.launchDateText(launch))
+                .font(.body)
         }
         .padding(12)
+        .frame(width: 240, alignment: .leading)
         .background(.ultraThinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
+
+
 
 }
