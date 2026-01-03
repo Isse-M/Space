@@ -27,7 +27,7 @@ struct ISSMapView: View {
             Map(position: $cameraPosition, interactionModes: .all) {
                 if let coord = vm.coordinate {
                     Annotation("ISS", coordinate: coord) {
-                        Image(systemName: "sparkles") // byt till egen ISS-ikon om du vill
+                        Image(systemName: "sparkles")
                             .font(.title)
                             .padding(8)
                             .background(.thinMaterial)
@@ -48,7 +48,6 @@ struct ISSMapView: View {
                 }
             }
 
-            // Följ ISS: när lat/lon uppdateras, flytta kameran (men bara om follow är på).
             .onChange(of: LatLon(lat: vm.iss?.latitude, lon: vm.iss?.longitude)) { _, newValue in
                 guard vm.isFollowingISS,
                       let lat = newValue.lat,
@@ -108,9 +107,8 @@ struct ISSMapView: View {
             }
 
             HStack {
-                stat("Höjd", vm.altitudeText)     // bör visa “km” i din VM-formattering
-                stat("Hastighet", vm.velocityText) // bör visa “km/h”
-                stat("Sikt", vm.visibilityText)
+                stat("Höjd", vm.altitudeText)
+                stat("Hastighet", vm.velocityText)
             }
 
             HStack {

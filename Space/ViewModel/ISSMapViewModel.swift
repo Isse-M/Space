@@ -64,10 +64,6 @@ final class ISSMapViewModel {
         return String(format: "%.0f km/h", iss.velocity)
     }
 
-    var visibilityText: String {
-        iss?.visibility ?? "—"
-    }
-
     var timestampText: String {
         guard let iss else { return "—" }
         let date = Date(timeIntervalSince1970: iss.timestamp)

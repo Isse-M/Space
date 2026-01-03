@@ -16,7 +16,6 @@ struct ISSState: Decodable, Equatable, Identifiable {
     let longitude: Double
     let altitude: Double
     let velocity: Double
-    let visibility: String?
 
     let footprint: Double?
     let timestamp: TimeInterval
