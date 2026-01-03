@@ -33,11 +33,14 @@ struct ISSMapView: View {
             Map(position: $cameraPosition, interactionModes: .all) {
                 if let coord = vm.coordinate {
                     Annotation("ISS", coordinate: coord) {
-                        Image(systemName: "sparkles")
-                            .font(.title)
+                        Image("iss_icon")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 32, height: 32)
                             .padding(8)
-                            .background(.thinMaterial)
+                            .background(Color.white.opacity(0.85))
                             .clipShape(Circle())
+                            .shadow(color: .black.opacity(0.25), radius: 6, x: 0, y: 2)
                     }
                 }
             }
