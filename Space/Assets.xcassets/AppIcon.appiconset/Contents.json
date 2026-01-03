@@ -1,7 +1,7 @@
 {
   "images" : [
     {
-      "filename" : "Astro_Daily.png",
+      "filename" : "Astro.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
@@ -13,7 +13,7 @@
           "value" : "dark"
         }
       ],
-      "filename" : "Astro_Daily 1.png",
+      "filename" : "Astro 1.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
