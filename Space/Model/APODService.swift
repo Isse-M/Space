@@ -15,7 +15,7 @@ final class APODService: APODServicing {
 
     func fetchAPOD() async throws -> APODState {
         let url = URL(
-            string: "https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY&thumbs=true"
+            string: "https://api.nasa.gov/planetary/apod?api_key=FPQq48mAI3cfDWZ9T7psr1RnQwguIqXP6f35aKMi&thumbs=true"
         )!
 
         let (data, response) = try await URLSession.shared.data(from: url)
