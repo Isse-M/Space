@@ -17,9 +17,15 @@ private struct LatLon: Equatable {
 
 struct ISSMapView: View {
     @State private var vm = ISSMapViewModel()
-    @State private var cameraPosition: MapCameraPosition = .automatic
 
-    @State private var ignoreUserCameraChanges = false
+    @State private var cameraPosition: MapCameraPosition = .region(
+        MKCoordinateRegion(
+            center: CLLocationCoordinate2D(latitude: 0, longitude: 0),
+            span: MKCoordinateSpan(latitudeDelta: 120, longitudeDelta: 120)
+        )
+    )
+
+    @State private var hasCenteredInitially = false
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -36,40 +42,19 @@ struct ISSMapView: View {
                 }
             }
             .mapStyle(.hybrid(elevation: .realistic))
-            .onAppear {
-                vm.start()
-            }
+            .onAppear { vm.start() }
             .onDisappear { vm.stop() }
 
-            .onMapCameraChange(frequency: .continuous) { _ in
-                guard !ignoreUserCameraChanges else { return }
-                if vm.isFollowingISS {
-                    vm.isFollowingISS = false
-                }
-            }
-
+            
             .onChange(of: LatLon(lat: vm.iss?.latitude, lon: vm.iss?.longitude)) { _, newValue in
-                guard vm.isFollowingISS,
+                guard !hasCenteredInitially,
                       let lat = newValue.lat,
                       let lon = newValue.lon
                 else { return }
 
-                let newCoord = CLLocationCoordinate2D(latitude: lat, longitude: lon)
-
-                ignoreUserCameraChanges = true
-                withAnimation(.easeInOut(duration: 0.8)) {
-                    cameraPosition = .region(
-                        MKCoordinateRegion(
-                            center: newCoord,
-                            span: MKCoordinateSpan(latitudeDelta: 40, longitudeDelta: 40)
-                        )
-                    )
-                }
-
-                Task { @MainActor in
-                    try? await Task.sleep(nanoseconds: 900_000_000)
-                    ignoreUserCameraChanges = false
-                }
+                hasCenteredInitially = true
+                let coord = CLLocationCoordinate2D(latitude: lat, longitude: lon)
+                recenter(on: coord, span: MKCoordinateSpan(latitudeDelta: 60, longitudeDelta: 60))
             }
 
             infoPanel
@@ -80,29 +65,10 @@ struct ISSMapView: View {
         VStack(spacing: 10) {
 
             HStack {
-                Toggle("Följ ISS", isOn: $vm.isFollowingISS)
-                    .toggleStyle(.switch)
-
                 Spacer()
-
                 Button("Recenter") {
-                    vm.isFollowingISS = true
-
                     guard let coord = vm.coordinate else { return }
-
-                    ignoreUserCameraChanges = true
-                    withAnimation(.easeInOut(duration: 0.8)) {
-                        cameraPosition = .region(
-                            MKCoordinateRegion(
-                                center: coord,
-                                span: MKCoordinateSpan(latitudeDelta: 40, longitudeDelta: 40)
-                            )
-                        )
-                    }
-                    Task { @MainActor in
-                        try? await Task.sleep(nanoseconds: 900_000_000)
-                        ignoreUserCameraChanges = false
-                    }
+                    recenter(on: coord, span: MKCoordinateSpan(latitudeDelta: 15, longitudeDelta: 15))
                 }
             }
 
@@ -141,5 +107,13 @@ struct ISSMapView: View {
                 .font(.headline)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private func recenter(on coord: CLLocationCoordinate2D, span: MKCoordinateSpan) {
+        withAnimation(.easeInOut(duration: 0.9)) {
+            cameraPosition = .region(
+                MKCoordinateRegion(center: coord, span: span)
+            )
+        }
     }
 }
