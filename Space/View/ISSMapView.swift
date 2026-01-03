@@ -71,7 +71,7 @@ struct ISSMapView: View {
                 Spacer()
                 Button("Recenter") {
                     guard let coord = vm.coordinate else { return }
-                    recenter(on: coord, span: MKCoordinateSpan(latitudeDelta: 15, longitudeDelta: 15))
+                    recenter(on: coord, span: MKCoordinateSpan(latitudeDelta: 20, longitudeDelta: 20))
                 }
             }
 
