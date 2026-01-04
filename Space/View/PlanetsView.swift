@@ -204,25 +204,21 @@ struct CompassView: View {
     var body: some View {
         VStack(spacing: 10) {
             ZStack {
-                CompassRose()
-                    .aspectRatio(1, contentMode: .fit)
-                
-                Image(systemName: "arrowtriangle.up.fill")
-                    .font(.system(size: 40, weight: .black))
-                    .foregroundStyle(.red)
-                    .scaleEffect(x: 0.5, y: 4)
-                    .rotationEffect(.degrees(targetAzimuth))
-                
-                Image(systemName: "arrowtriangle.up.fill")
-                        .font(.system(size: 44, weight: .bold))
-                        .foregroundStyle(.blue)
+                ZStack {
+                    CompassRose()
+                        .aspectRatio(1, contentMode: .fit)
+                        .rotationEffect(.degrees(-(heading ?? 0)))
+
+                    Image(systemName: "arrowtriangle.up.fill")
+                        .font(.system(size: 40, weight: .black))
+                        .foregroundStyle(.red)
                         .scaleEffect(x: 0.5, y: 4)
-                        .rotationEffect(.degrees(heading ?? 0))
+                        .rotationEffect(.degrees(targetAzimuth - (heading ?? 0)))
+                }
             }
             .padding(12)
 
             HStack(spacing: 16) {
-                legendItem(color: .blue, title: "You")
                 legendItem(color: .red, title: "Planet")
             }
             .font(.footnote)
@@ -230,11 +226,14 @@ struct CompassView: View {
         }
     }
 
+    private var rotationDegrees: Double {
+        let h = heading ?? 0
+        return h - targetAzimuth
+    }
+
     private func legendItem(color: Color, title: String) -> some View {
         HStack(spacing: 6) {
-            Circle()
-                .fill(color)
-                .frame(width: 10, height: 10)
+            Circle().fill(color).frame(width: 10, height: 10)
             Text(title)
         }
     }
