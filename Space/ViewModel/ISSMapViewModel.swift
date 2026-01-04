@@ -13,17 +13,12 @@ import Observation
 @MainActor
 @Observable
 final class ISSMapViewModel {
-    private let service: ISSServicing
+    private let service: ISSServicing = ISSService()
     private var pollingTask: Task<Void, Never>?
 
     var iss: ISSState?
     var errorMessage: String?
-
     var isFollowingISS: Bool = true
-
-    init(service: ISSServicing = ISSService()) {
-        self.service = service
-    }
 
     func start() {
         guard pollingTask == nil else { return }

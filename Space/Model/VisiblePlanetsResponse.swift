@@ -28,8 +28,6 @@ struct VisiblePlanetsResponse: Decodable {
 }
 
 struct VisibleBody: Decodable, Identifiable {
-    // API:t skickar inget "id" i datan du fick, så vi använder name som id.
-    // (Det är unikt i listan: Moon, Jupiter, Saturn, osv.) [page:0]
     var id: String { name }
 
     let name: String
@@ -42,7 +40,7 @@ struct VisibleBody: Decodable, Identifiable {
     let azimuth: Double
     let aboveHorizon: Bool
 
-    let phase: Double?          // Moon har phase i din respons
+    let phase: Double?          
     let magnitude: Double?
     let nakedEyeObject: Bool?
 

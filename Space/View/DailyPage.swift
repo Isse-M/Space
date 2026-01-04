@@ -14,7 +14,7 @@ struct DailyPage: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 14) {
 
-                Text("NASA APOD")
+                Text("NASA Astronomy Picture of the Day")
                     .font(.title2).bold()
 
                 if vm.isLoading {

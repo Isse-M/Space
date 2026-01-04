@@ -12,17 +12,13 @@ import Observation
 @MainActor
 @Observable
 final class PlanetsViewModel {
-    private let service: VisiblePlanetsServicing
+    private let service: VisiblePlanetsServicing = VisiblePlanetsService()
 
     var responseMeta: VisiblePlanetsResponse.Meta?
     var bodies: [VisibleBody] = []
 
     var isLoading = false
     var errorMessage: String?
-
-    init(service: VisiblePlanetsServicing = VisiblePlanetsService()) {
-        self.service = service
-    }
 
     func load(latitude: Double, longitude: Double) async {
         isLoading = true

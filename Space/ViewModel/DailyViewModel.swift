@@ -11,30 +11,18 @@ import Observation
 @MainActor
 @Observable
 final class DailyViewModel {
-    private let apodService: APODServicing
-    private let marsService: MarsWeatherServicing
-    private let rocketLaunchService: RocketLaunchServicing
+    private let apodService: APODServicing = APODService()
+    private let marsService: MarsWeatherServicing = MarsWeatherService()
+    private let rocketLaunchService: RocketLaunchServicing = RocketLaunchService()
 
     var apod: APODState?
     var mars: MarsWeatherState?
-    
     var marsLatest: MarsWeatherState?
     var marsDays: [MarsWeatherState] = []
-
     var rocketLaunches: [RocketLaunchState] = []
 
     var isLoading = false
     var errorMessage: String?
-
-    init(
-        apodService: APODServicing = APODService(),
-        marsService: MarsWeatherServicing = MarsWeatherService(),
-        rocketLaunchService: RocketLaunchServicing = RocketLaunchService()
-    ) {
-        self.apodService = apodService
-        self.marsService = marsService
-        self.rocketLaunchService = rocketLaunchService
-    }
 
     func load() async {
         guard !isLoading else { return }
