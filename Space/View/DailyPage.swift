@@ -15,7 +15,10 @@ struct DailyPage: View {
             VStack(alignment: .leading, spacing: 14) {
 
                 Text("NASA Astronomy Picture of the Day")
-                    .font(.title2).bold()
+                    .font(.custom("Times New Roman", size: 32))
+                    .fontWeight(.bold)
+                    .foregroundStyle(.white)
+                    .multilineTextAlignment(.leading)
 
                 if vm.isLoading {
                     ProgressView()
@@ -24,27 +27,43 @@ struct DailyPage: View {
                 if let apod = vm.apod {
                     apodCard(apod)
                 }
-
-                Text("Mars Weather")
-                    .font(.title2).bold()
-
+                
+                sectionHeader("Mars Weather", imageName: "mars_icon")
                 marsWeatherSection
-                
-                Text("Next Rocket Launches")
-                    .font(.title2).bold()
 
+                sectionHeader("Next Rocket Launches", imageName: "rocket_icon")
                 rocketLaunchSection
-                
+
                 if let err = vm.errorMessage {
                     Text(err)
                         .font(.footnote)
                         .foregroundStyle(.red)
                 }
             }
-            .padding()
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 48)
         }
+        .background(backgroundView)
+        .ignoresSafeArea()
         .task { await vm.load() }
         .refreshable { await vm.load() }
+    }
+    
+    private var backgroundView: some View {
+        ZStack {
+            Image("SpaceBG")
+                .resizable()
+                .scaledToFill()
+                .ignoresSafeArea()
+
+            LinearGradient(
+                colors: [.black.opacity(0.35), .black.opacity(0.55)],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
+        }
     }
 
     @ViewBuilder
@@ -63,17 +82,20 @@ struct DailyPage: View {
                     case .empty:
                         ProgressView()
                             .frame(maxWidth: .infinity, minHeight: 200)
+
                     case .success(let image):
                         image
                             .resizable()
-                            .scaledToFit()
+                            .scaledToFill()
                             .frame(maxWidth: .infinity)
                             .frame(height: 240)
                             .clipped()
+
                     case .failure:
                         Text("Failed to load image.")
                             .font(.footnote)
                             .foregroundStyle(.secondary)
+
                     @unknown default:
                         EmptyView()
                     }
@@ -88,15 +110,19 @@ struct DailyPage: View {
                 .font(.body)
         }
         .padding(12)
-        .background(.ultraThinMaterial)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.ultraThinMaterial.opacity(0.5))
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .stroke(.white.opacity(0.12), lineWidth: 1)
+        )
     }
 
     private var marsWeatherSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-
             marsHeroCard
-            
+
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 10) {
                     ForEach(vm.marsDays.suffix(7)) { day in
@@ -106,11 +132,11 @@ struct DailyPage: View {
                 .padding(.vertical, 2)
             }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private var marsHeroCard: some View {
         VStack(alignment: .leading, spacing: 10) {
-
             HStack(alignment: .firstTextBaseline) {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(vm.marsHeroSolText)
@@ -126,6 +152,8 @@ struct DailyPage: View {
                 Text(vm.marsHeroHighLowText)
                     .font(.headline)
                     .multilineTextAlignment(.trailing)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
             }
 
             HStack {
@@ -141,8 +169,13 @@ struct DailyPage: View {
             }
         }
         .padding(12)
-        .background(.ultraThinMaterial)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.ultraThinMaterial.opacity(0.5))
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .stroke(.white.opacity(0.12), lineWidth: 1)
+        )
     }
 
     private func marsDayTile(_ day: MarsWeatherState) -> some View {
@@ -161,15 +194,17 @@ struct DailyPage: View {
             Divider().opacity(0.4)
 
             Text("High: \(hi)")
-                .font(.subheadline)
-
             Text("Low: \(lo)")
-                .font(.subheadline)
         }
+        .font(.subheadline)
         .padding(12)
         .frame(width: 170, alignment: .leading)
-        .background(.ultraThinMaterial)
+        .background(.ultraThinMaterial.opacity(0.5))
         .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .stroke(.white.opacity(0.12), lineWidth: 1)
+        )
     }
 
     private func marsStat(_ title: String, _ value: String) -> some View {
@@ -182,11 +217,10 @@ struct DailyPage: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
-    
+
     private var rocketLaunchSection: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 12) {
-
                 if vm.rocketLaunches.isEmpty {
                     Text("No upcoming launches found.")
                         .font(.footnote)
@@ -199,11 +233,11 @@ struct DailyPage: View {
             }
             .padding(.vertical, 4)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private func rocketLaunchCard(_ launch: RocketLaunchState) -> some View {
         VStack(alignment: .leading, spacing: 10) {
-
             HStack(spacing: 8) {
                 Image(systemName: "sparkles")
                     .foregroundStyle(.orange)
@@ -229,10 +263,28 @@ struct DailyPage: View {
         }
         .padding(12)
         .frame(width: 240, alignment: .leading)
-        .background(.ultraThinMaterial)
+        .background(.ultraThinMaterial.opacity(0.5))
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .stroke(.white.opacity(0.12), lineWidth: 1)
+        )
+    }
+    
+    private func sectionHeader(_ title: String, imageName: String) -> some View {
+        HStack(spacing: 8) {
+            Image(imageName)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 28, height: 28)
+                .foregroundStyle(.white.opacity(0.9))
+
+            Text(title)
+                .font(.custom("Times New Roman", size: 26))
+                .fontWeight(.bold)
+                .foregroundStyle(.white)
+        }
     }
 
-
-
 }
+
