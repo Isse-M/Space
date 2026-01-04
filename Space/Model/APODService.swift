@@ -14,17 +14,28 @@ protocol APODServicing {
 final class APODService: APODServicing {
 
     func fetchAPOD() async throws -> APODState {
-        let url = URL(
-            string: "https://api.nasa.gov/planetary/apod?api_key=FPQq48mAI3cfDWZ9T7psr1RnQwguIqXP6f35aKMi&thumbs=true"
-        )!
+        
+            //ta bort när api funkar
+            let useMockOnly = true
+            if useMockOnly {
+                return .mock
+            }
+        
+            let url = URL(
+                string: "https://api.nasa.gov/planetary/apod?api_key=FPQq48mAI3cfDWZ9T7psr1RnQwguIqXP6f35aKMi&thumbs=true"
+            )!
 
-        let (data, response) = try await URLSession.shared.data(from: url)
+            do {
+                let (data, response) = try await URLSession.shared.data(from: url)
 
-        guard let http = response as? HTTPURLResponse,
-              (200..<300).contains(http.statusCode) else {
-            throw URLError(.badServerResponse)
+                guard let http = response as? HTTPURLResponse,
+                      (200..<300).contains(http.statusCode) else {
+                    throw URLError(.badServerResponse)
+                }
+
+                return try JSONDecoder().decode(APODState.self, from: data)
+            } catch {
+                return .mock
+            }
         }
-
-        return try JSONDecoder().decode(APODState.self, from: data)
-    }
 }
