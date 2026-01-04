@@ -23,6 +23,12 @@ final class ISSMapViewModel: NSObject{
     var errorMessage: String?
     var isFollowingISS: Bool = true
     
+    override init() {
+            super.init()
+            locationManager.delegate = self
+            locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        }
+    
     func start() {
         locationManager.requestWhenInUseAuthorization()
         locationManager.startUpdatingLocation()
