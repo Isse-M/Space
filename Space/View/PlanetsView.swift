@@ -29,15 +29,20 @@ struct PlanetsView: View {
                             selectedBody = b
                         } label: {
                             row(for: b)
+                                .padding(12)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                        .fill(.ultraThinMaterial)
+                                        .opacity(0.5)
+                                )
                         }
                         .buttonStyle(.plain)
-                        .listRowBackground(RoundedRectangle(cornerRadius: 16, style: .continuous)
-                            .fill(.ultraThinMaterial)
-                            .opacity(0.5)
-                        )
+                        .listRowBackground(Color.clear)
                         .listRowSeparator(.hidden)
-                        .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
+                        .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16)) 
                     }
+
                 }
             }
         }
@@ -63,7 +68,7 @@ struct PlanetsView: View {
             PlanetDetailSheet(planet: planet, location: location)
         }
     }
-    
+            
     private var backgroundView: some View {
         ZStack {
             Image("SpaceBG")
