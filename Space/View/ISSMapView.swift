@@ -17,7 +17,7 @@ private struct LatLon: Equatable {
 
 struct ISSMapView: View {
     @State private var vm = ISSMapViewModel()
-
+    @State private var isShowingAR = false
     @State private var cameraPosition: MapCameraPosition = .region(
         MKCoordinateRegion(
             center: CLLocationCoordinate2D(latitude: 0, longitude: 0),
@@ -62,6 +62,9 @@ struct ISSMapView: View {
 
             infoPanel
         }
+        .fullScreenCover(isPresented: $isShowingAR) {
+            ISSARView(position: vm.getARPosition())
+        }
     }
 
     private var infoPanel: some View {
@@ -79,6 +82,18 @@ struct ISSMapView: View {
                 stat("Höjd", vm.altitudeText)
                 stat("Hastighet", vm.velocityText)
             }
+            
+            Button(action: {
+                        isShowingAR = true
+                    }) {
+                        Label("Se i AR", systemImage: "arkit")
+                            .font(.headline)
+                            .padding(.vertical, 10)
+                            .frame(maxWidth: .infinity)
+                            .background(Color.blue)
+                            .foregroundColor(.white)
+                            .cornerRadius(10)
+                    }
 
             HStack {
                 Text("Senast: \(vm.timestampText)")
