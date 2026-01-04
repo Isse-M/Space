@@ -9,6 +9,7 @@ import SwiftUI
 
 struct DailyPage: View {
     @State private var vm = DailyViewModel()
+    @State private var showAPODInfo = false
 
     var body: some View {
         ScrollView {
@@ -43,7 +44,7 @@ struct DailyPage: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 16)
             .padding(.vertical, 48)
-            .padding(.bottom, 90) 
+            .padding(.bottom, 90)
         }
         .background(backgroundView)
         .ignoresSafeArea()
@@ -107,8 +108,16 @@ struct DailyPage: View {
                     .font(.headline)
             }
 
-            Text(apod.explanation)
+            Text(previewWords(apod.explanation, limit: 30))
                 .font(.body)
+
+            Button {
+                showAPODInfo = true
+            } label: {
+                Label("More info", systemImage: "info.circle")
+                    .font(.headline)
+            }
+            .padding(.top, 4)
         }
         .padding(12)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -118,6 +127,35 @@ struct DailyPage: View {
             RoundedRectangle(cornerRadius: 16, style: .continuous)
                 .stroke(.white.opacity(0.12), lineWidth: 1)
         )
+        .sheet(isPresented: $showAPODInfo) {
+            apodInfoSheet(apod)
+        }
+    }
+    
+    private func apodInfoSheet(_ apod: APODState) -> some View {
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text(apod.title)
+                        .font(.title2).bold()
+
+                    Text(apod.date)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+
+                    Text(apod.explanation)
+                        .font(.body)
+                }
+                .padding()
+            }
+            .navigationTitle("APOD Details")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Done") { showAPODInfo = false }
+                }
+            }
+        }
     }
 
     private var marsWeatherSection: some View {
@@ -285,6 +323,11 @@ struct DailyPage: View {
                 .fontWeight(.bold)
                 .foregroundStyle(.white)
         }
+    }
+    private func previewWords(_ text: String, limit: Int = 30) -> String {
+        let words = text.split(whereSeparator: \.isWhitespace)
+        guard words.count > limit else { return text }
+        return words.prefix(limit).joined(separator: " ") + "…"
     }
 
 }
