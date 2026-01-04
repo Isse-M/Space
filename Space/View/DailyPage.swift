@@ -43,6 +43,7 @@ struct DailyPage: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 16)
             .padding(.vertical, 48)
+            .padding(.bottom, 90) 
         }
         .background(backgroundView)
         .ignoresSafeArea()
