@@ -31,10 +31,18 @@ struct PlanetsView: View {
                             row(for: b)
                         }
                         .buttonStyle(.plain)
+                        .listRowBackground(RoundedRectangle(cornerRadius: 16, style: .continuous)
+                            .fill(.ultraThinMaterial)
+                            .opacity(0.5)
+                        )
+                        .listRowSeparator(.hidden)
+                        .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
                     }
                 }
             }
         }
+        .scrollContentBackground(.hidden)
+        .background(backgroundView)
         .navigationTitle("Sky")
         .toolbar {
             Button("Refresh") {
@@ -53,6 +61,22 @@ struct PlanetsView: View {
         }
         .sheet(item: $selectedBody) { planet in
             PlanetDetailSheet(planet: planet, location: location)
+        }
+    }
+    
+    private var backgroundView: some View {
+        ZStack {
+            Image("SpaceBG")
+                .resizable()
+                .scaledToFill()
+                .ignoresSafeArea()
+
+            LinearGradient(
+                colors: [.black.opacity(0.35), .black.opacity(0.55)],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
         }
     }
 
