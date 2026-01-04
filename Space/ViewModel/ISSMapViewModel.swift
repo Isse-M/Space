@@ -13,7 +13,7 @@ import Observation
 @MainActor
 @Observable
 final class ISSMapViewModel: NSObject{
-    private let service: ISSServicing
+    private let service: ISSServicing = ISSService()
     private var pollingTask: Task<Void, Never>?
     
     private let locationManager = CLLocationManager()
@@ -23,14 +23,6 @@ final class ISSMapViewModel: NSObject{
     var errorMessage: String?
     var isFollowingISS: Bool = true
     
-    init(service: ISSServicing = ISSService()) {
-            self.service = service
-            super.init()
-            
-            locationManager.delegate = self
-            locationManager.desiredAccuracy = kCLLocationAccuracyBest
-        }
-
     func start() {
         locationManager.requestWhenInUseAuthorization()
         locationManager.startUpdatingLocation()
