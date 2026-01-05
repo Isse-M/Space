@@ -29,12 +29,25 @@ struct PlanetsView: View {
                             selectedBody = b
                         } label: {
                             row(for: b)
+                                .padding(12)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                        .fill(.ultraThinMaterial)
+                                        .opacity(0.5)
+                                )
                         }
                         .buttonStyle(.plain)
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
+                        .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16)) 
                     }
+
                 }
             }
         }
+        .scrollContentBackground(.hidden)
+        .background(backgroundView)
         .navigationTitle("Sky")
         .toolbar {
             Button("Refresh") {
@@ -53,6 +66,22 @@ struct PlanetsView: View {
         }
         .sheet(item: $selectedBody) { planet in
             PlanetDetailSheet(planet: planet, location: location)
+        }
+    }
+            
+    private var backgroundView: some View {
+        ZStack {
+            Image("SpaceBG")
+                .resizable()
+                .scaledToFill()
+                .ignoresSafeArea()
+
+            LinearGradient(
+                colors: [.black.opacity(0.35), .black.opacity(0.55)],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
         }
     }
 
@@ -204,25 +233,21 @@ struct CompassView: View {
     var body: some View {
         VStack(spacing: 10) {
             ZStack {
-                CompassRose()
-                    .aspectRatio(1, contentMode: .fit)
-                
-                Image(systemName: "arrowtriangle.up.fill")
-                    .font(.system(size: 40, weight: .black))
-                    .foregroundStyle(.red)
-                    .scaleEffect(x: 0.5, y: 4)
-                    .rotationEffect(.degrees(targetAzimuth))
-                
-                Image(systemName: "arrowtriangle.up.fill")
-                        .font(.system(size: 44, weight: .bold))
-                        .foregroundStyle(.blue)
+                ZStack {
+                    CompassRose()
+                        .aspectRatio(1, contentMode: .fit)
+                        .rotationEffect(.degrees(-(heading ?? 0)))
+
+                    Image(systemName: "arrowtriangle.up.fill")
+                        .font(.system(size: 40, weight: .black))
+                        .foregroundStyle(.red)
                         .scaleEffect(x: 0.5, y: 4)
-                        .rotationEffect(.degrees(heading ?? 0))
+                        .rotationEffect(.degrees(targetAzimuth - (heading ?? 0)))
+                }
             }
             .padding(12)
 
             HStack(spacing: 16) {
-                legendItem(color: .blue, title: "You")
                 legendItem(color: .red, title: "Planet")
             }
             .font(.footnote)
@@ -230,11 +255,14 @@ struct CompassView: View {
         }
     }
 
+    private var rotationDegrees: Double {
+        let h = heading ?? 0
+        return h - targetAzimuth
+    }
+
     private func legendItem(color: Color, title: String) -> some View {
         HStack(spacing: 6) {
-            Circle()
-                .fill(color)
-                .frame(width: 10, height: 10)
+            Circle().fill(color).frame(width: 10, height: 10)
             Text(title)
         }
     }
