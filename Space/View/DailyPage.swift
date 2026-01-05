@@ -46,26 +46,10 @@ struct DailyPage: View {
             .padding(.vertical, 48)
             .padding(.bottom, 90)
         }
-        .background(backgroundView)
+        .background(SpaceBackground())
         .ignoresSafeArea()
         .task { await vm.load() }
         .refreshable { await vm.load() }
-    }
-    
-    private var backgroundView: some View {
-        ZStack {
-            Image("SpaceBG")
-                .resizable()
-                .scaledToFill()
-                .ignoresSafeArea()
-
-            LinearGradient(
-                colors: [.black.opacity(0.35), .black.opacity(0.55)],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .ignoresSafeArea()
-        }
     }
 
     @ViewBuilder
