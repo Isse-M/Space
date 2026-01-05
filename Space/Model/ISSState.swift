@@ -8,9 +8,7 @@
 
 import Foundation
 
-struct ISSState: Decodable, Equatable, Identifiable {
-    let id: Int
-
+struct ISSState: Decodable, Equatable {
     let latitude: Double
     let longitude: Double
     let altitude: Double
