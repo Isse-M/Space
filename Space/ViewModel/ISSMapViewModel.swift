@@ -63,31 +63,12 @@ final class ISSMapViewModel: NSObject{
                 return (0, 0, -10)
             }
             
-            // 1. Konvertera grader till radianer
-            let userLat = user.coordinate.latitude * .pi / 180
-            let userLon = user.coordinate.longitude * .pi / 180
-            let issLat = iss.latitude * .pi / 180
-            let issLon = iss.longitude * .pi / 180
-            
-            // 2. Beräkna bäring (riktning i grader på kompassen)
-            let dLon = issLon - userLon
-            let y = sin(dLon) * cos(issLat)
-            let x = cos(userLat) * sin(issLat) - sin(userLat) * cos(issLat) * cos(dLon)
-            let bearing = atan2(y, x)
-            
-            // 3. Beräkna elevation (vinkel upp mot rymden)
-            let distanceInKm = user.distance(from: CLLocation(latitude: iss.latitude, longitude: iss.longitude)) / 1000
-            let elevation = atan2(iss.altitude, distanceInKm)
-            
-            // 4. Omvandla till AR-koordinater
-            // Vi använder en virtuell radie på 50 meter för visualisering
-            let radius: Float = 50.0
-            
-            let arX = radius * Float(cos(elevation)) * Float(sin(bearing))
-            let arY = radius * Float(sin(elevation))
-            let arZ = -radius * Float(cos(elevation)) * Float(cos(bearing))
-            
-            return (arX, arY, arZ)
+        return ISSARCalculator.calculatePosition(
+                    userLocation: user,
+                    issLatitude: iss.latitude,
+                    issLongitude: iss.longitude,
+                    issAltitudeKm: iss.altitude
+                )
         }
 
     var coordinate: CLLocationCoordinate2D? {
