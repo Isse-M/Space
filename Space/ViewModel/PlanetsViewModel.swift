@@ -14,7 +14,6 @@ import Observation
 final class PlanetsViewModel {
     private let service: VisiblePlanetsServicing = VisiblePlanetsService()
 
-    var responseMeta: VisiblePlanetsResponse.Meta?
     var bodies: [VisibleBody] = []
 
     var isLoading = false

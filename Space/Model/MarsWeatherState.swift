@@ -21,11 +21,9 @@ struct MarsWeatherResponse: Decodable, Equatable {
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: DynamicKey.self)
 
-        // decode sol_keys
         let solKeysKey = DynamicKey(stringValue: "sol_keys")!
         self.solKeys = (try? container.decode([String].self, forKey: solKeysKey)) ?? []
 
-        // decode only sols in sol_keys
         var tmp: [String: MarsSolWeather] = [:]
         for sol in solKeys {
             if let key = DynamicKey(stringValue: sol),
@@ -64,9 +62,9 @@ struct MarsSolWeather: Decodable, Equatable {
     let lastUTC: String?
     let season: String?
 
-    let at: MarsMeasurement?   // Air temp
-    let pre: MarsMeasurement?  // Pressure
-    let hws: MarsMeasurement?  // Horizontal wind speed
+    let at: MarsMeasurement?
+    let pre: MarsMeasurement?
+    let hws: MarsMeasurement?
 
     enum CodingKeys: String, CodingKey {
         case firstUTC = "First_UTC"

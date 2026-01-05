@@ -9,7 +9,6 @@
 import Foundation
 
 struct ISSState: Decodable, Equatable, Identifiable {
-    let name: String
     let id: Int
 
     let latitude: Double
@@ -17,7 +16,5 @@ struct ISSState: Decodable, Equatable, Identifiable {
     let altitude: Double
     let velocity: Double
 
-    let footprint: Double?
     let timestamp: TimeInterval
-    let units: String
 }

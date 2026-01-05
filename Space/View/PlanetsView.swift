@@ -49,14 +49,11 @@ struct PlanetsView: View {
         .scrollContentBackground(.hidden)
         .background(backgroundView)
         .navigationTitle("Sky")
-        .toolbar {
-            Button("Refresh") {
-                Task { await refresh() }
-            }
-        }
         .overlay {
             if vm.isLoading { ProgressView() }
         }
+        .refreshable {
+            await refresh() }
         .task {
             location.requestPermissionAndStart()
             await refresh()

@@ -58,7 +58,6 @@ final class ISSMapViewModel: NSObject{
     }
     
     func getARPosition() -> (x: Float, y: Float, z: Float) {
-            // Om vi saknar data, placera den 10m bort som fallback
             guard let iss = iss, let user = userLocation else {
                 return (0, 0, -10)
             }
